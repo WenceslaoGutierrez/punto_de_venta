@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+
+{% block title %}Lista de {{ titulo }} {% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Lista de {{ titulo }}</h2>
+    
+    {% if es_admin %}
+        <a href="{{ agregar_url }}" class="btn btn-success mb-3">Agregar {{ texto_boton }}</a>
+    {% endif %}
+
+    <!-- Filtro -->
+    <form id="filtro-form" class="mb-4">
+        <div class="row">
+            <div class="col-md-3 mt-2">
+                <input type="text" id="searchQuery" class="form-control" placeholder="Buscar por nombre">
+            </div>
+            <!-- Filtros adicionales -->
+            {% block extra_filtros %}{% endblock %}
+            
+            <div class="col-md-3 mt-2 ">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+            
+            {% block extra_botones %}{% endblock %}
+        </div>
+    </form>
+
+    {% if objetos %}
+    <table class="table table-bordered">
+        <thead id="tabla-head">
+            <tr>
+                {% for encabezado in encabezados %}
+                <th>{{ encabezado }}</th>
+                {% endfor %}
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-body">
+            {% block cuerpo_tabla %}
+                {% for objeto in objetos %}
+                    <tr>
+                        {% for campo in campos %}
+                        <td>{{ objeto|attr:campo }}</td>
+                        {% endfor %}
+                        <td>
+                            {% if es_admin and not sin_edicion|default:False %}
+                                <a href="{{ objeto.editar_url }}" class="btn btn-info btn-sm">Editar</a>
+                                <a href="#" class="btn btn-danger btn-sm" data-toggle="modal"
+                                    data-target="#modalEliminar{{ objeto.id }}">Eliminar</a>
+                                {% include "crud/eliminar_base.html" with objeto=objeto %}
+                            {% endif %}
+                            
+                            {% block extra_acciones %}{% endblock %}
+                            <!-- Modales Adicionales -->
+                            {% block modales_extras %}{% endblock %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endblock %}
+        </tbody>
+    </table>
+
+    <p id="no-results" style="display: none; text-align:center; font-weight:bold;">No se encontraron {{ titulo }}.</p>
+
+    {% else %}
+    <p>No se encontraron {{ titulo }}.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $("#filtro-form").submit(function (event) {
+            event.preventDefault();  // Evitar recarga de la página
+
+            let query = $("#searchQuery").val();
+            let filtro  = $("#filtro").val() || "todos";  // Asegurar que "todos" sea el valor por defecto
+
+            $.ajax({
+                url: window.location.href,
+                data: { q: query, filtro: filtro },
+                dataType: "json",
+                success: function (data) {
+                    let tableHead = $("#tabla-head");
+                    let tableBody = $("#tabla-body");
+
+                    tableBody.empty();
+
+                    if (data.objetos.length > 0) {
+                        $("#no-results").hide();
+
+                        // Generar los encabezados
+                        if (tableHead.children().length === 0) {
+                            let headerRow = "<tr>";
+                            data.encabezados.forEach(encabezado => {
+                                headerRow += `<th>${encabezado}</th>`;
+                            });
+                            headerRow += "<th>Acciones</th></tr>";
+                            tableHead.append(headerRow);
+                        }
+
+                        // Generar filas
+                        data.objetos.forEach(function (objeto) {
+                            let row = `<tr>`;
+                            
+                            // Agregar columnas
+                            objeto.campos.forEach(function (campo) {
+                                row += `<td>${campo}</td>`;
+                            });
+
+                            // Agregar Acciones
+                            row += '<td>';
+                            
+                            if (data.es_admin) {
+                                row += `
+                                    <a href="${objeto.editar_url}" class="btn btn-info btn-sm">Editar</a>
+                                    <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalEliminar${objeto.id}">Eliminar</a>
+                                `;
+                            }
+
+                            // Agregar acciones extra si existen
+                            if (objeto.extra_acciones) {
+                                row += objeto.extra_acciones;
+                            }
+
+                            //Agregar modales extra
+
+                            if(objeto.modales_extras){
+                                row+=objeto.modales_extras;
+                            }
+                            
+                            row += `</td></tr>`;
+                            tableBody.append(row);
+                        });
+                        
+                        
+                    } else {
+                        $("#no-results").show();
+                    }
+                },
+                error: function () {
+                    alert("Hubo un error al obtener los datos.");
+                }
+            });
+        });
+    });
+</script>
+{% block extra_js_dynamic %}{% endblock %}
+{% endblock %}

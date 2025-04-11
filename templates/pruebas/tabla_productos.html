@@ -1,0 +1,13 @@
+{% for producto in productos %}
+<tr>
+    <td>{{ producto.nombre }}</td>
+    <td>{{ producto.marca.nombre }}</td>
+    <td>{{ producto.departamento.nombre }}</td>
+    <td>${{ producto.precio }}</td>
+    <td>{{ producto.stock }}</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5" class="text-center font-weight-bold">No se encontraron productos.</td>
+</tr>
+{% endfor %}

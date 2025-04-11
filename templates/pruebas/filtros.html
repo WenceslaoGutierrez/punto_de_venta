@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Pruebas de filtros dinámicos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Pruebas de filtros con QuerySet</h2>
+
+    <!-- Formulario de Filtro -->
+    <form id="filtro-form" class="mb-4">
+        <div class="row">
+            <div class="col-md-4 mt-2">
+                <input type="text" name="q" class="form-control" placeholder="Filtro Q (nombre__icontains=pan|precio__lt=50)">
+            </div>
+            <div class="col-md-3 mt-2">
+                <input type="text" name="nombre__icontains" class="form-control" placeholder="Nombre contiene">
+            </div>
+            <div class="col-md-2 mt-2">
+                <input type="number" name="precio__gte" class="form-control" placeholder="Precio mínimo">
+            </div>
+            <div class="col-md-2 mt-2">
+                <input type="number" name="precio__lte" class="form-control" placeholder="Precio máximo">
+            </div>
+            <div class="col-md-2 mt-2">
+                <button type="submit" class="btn btn-primary btn-block">Filtrar</button>
+            </div>
+            <div class="col-md-2 mt-2">
+                <button type="button" class="btn btn-secondary btn-block" id="limpiar-filtros">Limpiar</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-bordered">
+        <thead id="tabla-head">
+            <tr>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Departamento</th>
+                <th>Precio</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-body">
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.marca.nombre }}</td>
+                <td>{{ producto.departamento.nombre }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>{{ producto.stock }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center font-weight-bold">No se encontraron productos.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p id="no-results" class="text-center font-weight-bold" style="display: none;">No se encontraron productos.</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function () {
+    $('#filtro-form').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: "{% url 'filtro_dinamico_productos' %}",
+            type: 'GET',
+            data: $(this).serialize(),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (data) {
+                $('#tabla-body').html(data);
+                $('#no-results').toggle(data.trim() === '');
+            },
+            error: function () {
+                alert('Error al cargar los datos filtrados.');
+            }
+        });
+    });
+
+    $('#limpiar-filtros').on('click', function () {
+        $('#filtro-form')[0].reset();
+        $('#filtro-form').submit();
+    });
+});
+</script>
+{% endblock %}

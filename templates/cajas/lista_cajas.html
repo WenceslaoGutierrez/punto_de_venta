@@ -1,0 +1,193 @@
+{% extends "crud/lista_base.html" %}
+
+{% block extra_filtros %}
+    <div class="col-md-4 mt-2">
+        <select id="filtro" class="form-control">
+            <option value="todos">Todas las cajas</option>
+            <option value="ABIERTA">Cajas Abiertas</option>
+            <option value="CERRADA">Cajas Cerradas</option>
+        </select>
+    </div>
+{% endblock %}
+
+{% block cuerpo_tabla %}
+    {% for caja in objetos %}
+    <tr>
+        <td id="">{{ caja.clave }}</td>
+        <td id="">{{ caja.nombre }}</td>
+        <td id="">{{ caja.estado }}</td>
+        <td>
+            {% if caja.apertura %}
+                {{ caja.apertura.vendedor.username }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>
+            {% if caja.apertura %}
+                {{ caja.apertura.fecha_apertura|date:"Y-m-d H:i" }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+                <td>
+            {% if caja.apertura and caja.apertura.fecha_cierre %}
+                {{ caja.apertura.fecha_cierre|date:"Y-m-d H:i" }}
+            {% else %}
+                Sesión en curso
+            {% endif %}
+        </td>
+        <td>
+            {% if caja.apertura %}
+                ${{ caja.apertura.monto_inicial }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>
+            {% if caja.apertura %}
+                ${{ caja.apertura.monto_final }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>
+            {% if es_admin %}
+                <a href="{{ caja.editar_url }}" class="btn btn-info btn-sm">Editar</a>
+                <a href="#" class="btn btn-danger btn-sm" data-toggle="modal"
+                    data-target="#modalEliminar{{ caja.id }}">Eliminar</a>
+                {% include "crud/eliminar_base.html" with objeto=caja %}
+            {% endif %}
+
+            {% block extra_acciones %}
+                <button class="btn btn-success btn-sm abrir-caja" data-id="{{ caja.id }}" data-nombre="{{ caja.nombre }}" data-url="{{ caja.abrir_url }}" data-usuario="{{ request.user.username }}" {% if caja.estado == "ABIERTA" %} disabled {% endif %}>Abrir Caja</button>
+                <button class="btn btn-warning btn-sm cerrar-caja" data-id="{{ caja.id }}" data-nombre="{{ caja.nombre }}" data-url="{{ caja.cerrar_url }}" data-usuario="{{ request.user.username }}" {% if caja.estado == "CERRADA" %} disabled {% endif %}>Cerrar Caja</button>
+            {% endblock %}
+
+            {% block modales_extras %}
+                {% include "cajas/modales.html"%}
+            {% endblock %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+
+{% block extra_js_dynamic %}
+    <script>
+        console.log("CARGA DE EXTRA JS");
+
+        // Obtener Token del formulario
+        function getCSRFToken() {
+            return $("input[name='csrfmiddlewaretoken']").val();
+        }
+
+        // Incluir Token en cada petición AJAX
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
+                }
+            }
+        });
+
+        // Reconectar los eventos de los botones y modales
+        function reconectarEventos() {
+            console.log("Reconectando eventos...");
+
+            // Modal de abrir caja
+            $(document).off("click", ".abrir-caja").on("click", ".abrir-caja", function () {
+                let cajaId = $(this).data("id");
+                let nombreCaja = $(this).data("nombre");
+                let nombreUsuario = $(this).data("usuario");
+                let urlAbrir = $(this).data("url");
+
+                console.log("Abrir caja:", cajaId);
+
+                $("#cajaIdAbrir").val(cajaId);
+                $("#nombreCajaAbrir").text(nombreCaja);
+                $("#nombreUsuarioAbrir").text(nombreUsuario);
+                $("#formAbrirCaja").attr("action", urlAbrir);
+                $("#modalAbrirCaja").modal("show");
+            });
+
+            // Confirmar apertura de caja
+            $(document).off("submit", "#formAbrirCaja").on("submit", "#formAbrirCaja", function (event) {
+                event.preventDefault();
+                let form = $(this);
+                let url = form.attr("action");
+
+                console.log("Enviando apertura de caja:", form.serialize());
+
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert("Caja abierta correctamente");
+                            location.reload();
+                        } else {
+                            alert(response.error);
+                        }
+                    },
+                    error: function () {
+                        alert("Error al abrir la caja.");
+                    }
+                });
+            });
+
+            // Modal de cerrar caja
+            $(document).off("click", ".cerrar-caja").on("click", ".cerrar-caja", function () {
+                let cajaId = $(this).data("id");
+                let nombreCaja = $(this).data("nombre");
+                let nombreUsuario = $(this).data("usuario");
+                let urlCerrar = $(this).data("url");
+
+                console.log("Cerrar caja:", cajaId);
+
+                $("#cajaIdCerrar").val(cajaId);
+                $("#nombreCajaCerrar").text(nombreCaja);
+                $("#nombreUsuarioCerrar").text(nombreUsuario);
+                $("#formCerrarCaja").attr("action", urlCerrar);
+                $("#modalCerrarCaja").modal("show");
+            });
+
+            // Confirmar cierre de caja
+            $(document).off("submit", "#formCerrarCaja").on("submit", "#formCerrarCaja", function (event) {
+                event.preventDefault();
+                let form = $(this);
+                let url = form.attr("action");
+
+                console.log("Enviando cierre de caja:", form.serialize());
+
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert("Caja cerrada correctamente");
+                            location.reload();
+                        } else {
+                            alert(response.error);
+                        }
+                    },
+                    error: function () {
+                        alert("Error al cerrar la caja.");
+                    }
+                });
+            });
+        }
+
+        // Inicio
+        reconectarEventos();
+
+        // Reconectar eventos después de aplicar un filtro
+        $(document).ajaxSuccess(function () {
+            console.log("Filtro aplicado, reconectando eventos...");
+            reconectarEventos();
+        });
+    </script>
+{% endblock %}
+

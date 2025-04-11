@@ -1,0 +1,55 @@
+    <!-- Modal abrir caja -->
+    <div class="modal fade" id="modalAbrirCaja" tabindex="-1" role="dialog" aria-labelledby="modalAbrirCajaLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Abrir Caja</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="formAbrirCaja" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <p><strong id="nombreUsuarioAbrir"></strong>, ¿deseas abrir la caja <strong id="nombreCajaAbrir"></strong>?</p>
+                        <!-- Campo oculto caja -->
+                        <input type="hidden" id="cajaIdAbrir" name="caja">
+                            
+                        <!-- Campo del monto inicial -->
+                        <div class="form-group">
+                            {{ caja_apertura_form.monto_inicial.label_tag }}
+                            {{ caja_apertura_form.monto_inicial }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success" id="confirmarAbrirCaja">Abrir Caja</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal cerrar caja -->
+    <div class="modal fade" id="modalCerrarCaja" tabindex="-1" role="dialog" aria-labelledby="modalCerrarCajaLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cerrar Caja</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="formCerrarCaja" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <p><strong id="nombreUsuarioCerrar"></strong>, ¿deseas cerrar la caja <strong id="nombreCajaCerrar"></strong>?</p>
+                        <input type="hidden" id="cajaIdCerrar" name="caja">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning" id="confirmarCerrarCaja">Cerrar Caja</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

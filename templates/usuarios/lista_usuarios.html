@@ -1,0 +1,11 @@
+{% extends "crud/lista_base.html" %}
+
+{% block extra_filtros %}
+<div class="col-md-4 mt-2">
+    <select id="filtro" class="form-control">
+        <option value="todos">Todos los roles</option>
+        <option value="ADMIN">Administrador</option>
+        <option value="VENDEDOR">Vendedor</option>
+    </select>
+</div>
+{% endblock %}

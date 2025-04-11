@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard | Punto de Venta{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        {% if request.user.rol == "ADMIN" %}
+        <!-- Negocio -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner"> 
+                    <h3>Negocio</h3>
+                    <p>Editar información fiscal y de contacto</p>                    
+                </div>
+                <div class="icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <a href="{% url 'editar_negocio' %}" class="small-box-footer">Más información <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- Usuarios -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner"> 
+                    <h3>Usuarios</h3>
+                    <p>Administrar usuarios</p>                    
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <a href="{% url 'lista_usuarios' %}" class="small-box-footer">Más información <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- Marcas -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner"> 
+                    <h3>Marcas</h3>
+                    <p>Administrar marcas de productos</p>                    
+                </div>
+                <div class="icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <a href="{% url 'lista_marcas' %}" class="small-box-footer">Más información <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- Clientes -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>Clientes</h3>
+                    <p>Administrar clientes</p>                    
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <a href="{% url 'lista_clientes' %}" class="small-box-footer">Más información <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>PENDIENTE</h3>
+                    <p>Productos</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <a href="#" class="small-box-footer">Más información <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if request.user.rol == "VENDEDOR" or request.user.rol == "ADMIN" %}
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>PENDIENTE</h3>
+                    <p>Ventas</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <a href="#" class="small-box-footer">Más información <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>PENDIENTE</h3>
+                    <p>Reportes</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <a href="#" class="small-box-footer">Más información <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h2 { text-align: center; }
+        .encabezado, .resumen, .detalle-productos { margin-bottom: 10px; }
+        .encabezado td { padding: 3px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        .totales { text-align: right; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Ticket de Venta</h2>
+
+    <div class="encabezado">
+        <table>
+            <tr><td><strong>Folio:</strong></td><td>{{ venta.id }}</td></tr>
+            <tr><td><strong>Fecha:</strong></td><td>{{ venta.fecha|date:"d/m/Y H:i" }}</td></tr>
+            <tr><td><strong>Cliente:</strong></td><td>{{ venta.cliente }}</td></tr>
+            <tr><td><strong>Vendedor:</strong></td><td>{{ venta.caja_apertura.vendedor.username }}</td></tr>
+            <tr><td><strong>Caja:</strong></td><td>{{ venta.caja_apertura.caja }}</td></tr>
+        </table>
+    </div>
+
+    <div class="detalle-productos">
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Descuento (%)</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detalle in detalles %}
+                <tr>
+                    <td>{{ detalle.producto.nombre }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>${{ detalle.precio_unitario }}</td>
+                    <td>{{ detalle.descuento }}</td>
+                    <td>${{ detalle.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="resumen">
+        <p class="totales">Descuento General: {{ venta.descuento_general }}%</p>
+        <p class="totales">Total: ${{ venta.total }}</p>
+        <p class="totales">Importe: ${{ venta.importe }}</p>
+        <p class="totales">Cambio: ${{ venta.cambio }}</p>
+        <p class="totales">Método de Pago: {{ venta.metodo_pago|capfirst }}</p>
+    </div>
+</body>
+</html>

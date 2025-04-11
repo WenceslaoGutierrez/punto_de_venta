@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">{{ titulo }}</h2>
+
+    <form method="post" action="{{ action_url }}">
+        {% csrf_token %}
+        
+        {% for formulario, titulo_form in formularios %}
+        <div class="card {% if forloop.first %}card-primary{% else %}card-secondary{% endif %} mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ titulo_form }}</h3>
+            </div>
+            <div class="card-body">
+                {{ formulario|crispy }}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <div>
+            <button type="submit" class="btn btn-primary">{{ boton_texto }}</button>
+            <a href="{{ volver_url }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
